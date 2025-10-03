@@ -11,14 +11,15 @@ A simple full-stack e-commerce application for sports equipment built with React
 **Containerization:** Docker
 
 📋 Features
-User authentication (Register/Login)
 
+- User authentication (Register/Login)
 - Product catalog
 - Shopping cart
 - Order management
 - Product search
 
 👥 Team
+
 Juan Esteban Carrillo Garcia
 Alejandro Sebastián González Torres
 Miguel Angel Babativa Niño
