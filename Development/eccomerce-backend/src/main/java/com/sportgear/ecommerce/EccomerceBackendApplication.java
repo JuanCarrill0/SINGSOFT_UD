@@ -1,4 +1,4 @@
-package com.sportgear.eccomerce;
+package com.sportgear.ecommerce;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
