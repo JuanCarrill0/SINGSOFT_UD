@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Environment variables
+.env
+*.env
+
+# Database files and backups
+*.db
+*.sqlite
+/database/backups/
+
+# Logs
+*.log
+logs/
