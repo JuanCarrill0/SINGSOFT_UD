@@ -1,20 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Header } from "./components/Header";
-import { Hero } from "./components/Hero";
-import { Categories } from "./components/Categories";
-import { ProductCard } from "./components/ProductCard";
 import { Cart } from "./components/Cart";
-import { ProductFilters } from "./components/ProductFilters";
 import { Footer } from "./components/Footer";
-import { Button } from "./components/ui/button";
-import { LayoutGrid, List } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./components/ui/select";
+import DashboardPage from './pages/DashboardPage';
+import LoginPage from './pages/LoginPage';
 
 interface CartItem {
   id: number;
@@ -144,6 +134,37 @@ export default function App() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+
+  // Verificar si hay sesión guardada al cargar
+  useEffect(() => {
+    const savedToken = localStorage.getItem("authToken");
+    const savedUser = localStorage.getItem("user");
+    if (savedToken && savedUser) {
+      setAuthToken(savedToken);
+      setUser(JSON.parse(savedUser));
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLoginSuccess = (token: string, userData: any) => {
+    setAuthToken(token);
+    setUser(userData);
+    setIsLoggedIn(true);
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setAuthToken(null);
+    setUser(null);
+    setIsLoggedIn(false);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+  };
 
   const handleAddToCart = (productId: number) => {
     const product = products.find((p) => p.id === productId);
@@ -185,111 +206,36 @@ export default function App() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header cartItemsCount={totalItems} onCartClick={() => setIsCartOpen(true)} />
-      
-      <main>
-        <Hero />
-        <Categories />
-
-        {/* Products section */}
-        <section className="py-12">
-          <div className="container mx-auto px-4">
-            {/* Section header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-              <div>
-                <h2 className="text-3xl mb-2">Productos Destacados</h2>
-                <p className="text-gray-600">Descubre nuestra selección de productos premium</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <ProductFilters />
-                <Select defaultValue="popular">
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Ordenar por" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="popular">Más Popular</SelectItem>
-                    <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
-                    <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
-                    <SelectItem value="rating">Mejor Valorados</SelectItem>
-                    <SelectItem value="new">Más Recientes</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="hidden sm:flex border rounded-lg">
-                  <Button
-                    variant={viewMode === "grid" ? "default" : "ghost"}
-                    size="icon"
-                    onClick={() => setViewMode("grid")}
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "default" : "ghost"}
-                    size="icon"
-                    onClick={() => setViewMode("list")}
-                  >
-                    <List className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Products grid */}
-            <div className={`grid gap-6 ${
-              viewMode === "grid"
-                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                : "grid-cols-1"
-            }`}>
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  {...product}
-                  onAddToCart={handleAddToCart}
-                />
-              ))}
-            </div>
-
-            {/* Load more */}
-            <div className="text-center mt-12">
-              <Button variant="outline" size="lg">
-                Cargar Más Productos
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Features banner */}
-        <section className="py-12 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              <div className="space-y-2">
-                <div className="text-3xl">🚚</div>
-                <h3 className="text-lg">Envío Gratis</h3>
-                <p className="text-sm text-gray-600">
-                  En compras superiores a $50.000
-                </p>
-              </div>
-              <div className="space-y-2">
-                <div className="text-3xl">🔄</div>
-                <h3 className="text-lg">Devoluciones Fáciles</h3>
-                <p className="text-sm text-gray-600">
-                  30 días para cambios y devoluciones
-                </p>
-              </div>
-              <div className="space-y-2">
-                <div className="text-3xl">💳</div>
-                <h3 className="text-lg">Pago Seguro</h3>
-                <p className="text-sm text-gray-600">
-                  Múltiples métodos de pago disponibles
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
+    <div className="min-h-screen bg-white flex flex-col">
+      <Header
+        cartItemsCount={totalItems}
+        onCartClick={() => setIsCartOpen(true)}
+        onLoginClick={() => navigate('/login')}
+        isLoggedIn={isLoggedIn}
+        userEmail={user?.email}
+        onLogout={handleLogout}
+      />
+      <div className="flex-1">
+        <Routes>
+          <Route
+            path="/login"
+            element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <LoginPage onSuccess={({ token, user }) => handleLoginSuccess(token, user)} />}
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <DashboardPage
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                onAddToCart={handleAddToCart}
+              />
+            }
+          />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </div>
       <Footer />
-
       <Cart
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -297,6 +243,8 @@ export default function App() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
       />
+      {/* Legacy modal removed from routing version */}
     </div>
   );
 }
+
