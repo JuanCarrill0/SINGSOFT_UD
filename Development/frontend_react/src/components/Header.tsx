@@ -1,4 +1,4 @@
-import { ShoppingCart, Search, User, Menu, Heart } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, Heart, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
@@ -6,9 +6,13 @@ import { Badge } from "./ui/badge";
 interface HeaderProps {
   cartItemsCount: number;
   onCartClick: () => void;
+  onLoginClick: () => void;
+  isLoggedIn: boolean;
+  userEmail?: string;
+  onLogout: () => void;
 }
 
-export function Header({ cartItemsCount, onCartClick }: HeaderProps) {
+export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, userEmail, onLogout }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
       {/* Top banner */}
@@ -24,7 +28,7 @@ export function Header({ cartItemsCount, onCartClick }: HeaderProps) {
             <Button variant="ghost" size="icon" className="lg:hidden">
               <Menu className="h-5 w-5" />
             </Button>
-            <h1 className="text-xl tracking-tight text-blue-600">SportGear Online</h1>
+            <a href="/"><h1 className="text-xl tracking-tight text-blue-600">SportGear Online</h1></a>
           </div>
 
           {/* Search bar */}
@@ -41,9 +45,20 @@ export function Header({ cartItemsCount, onCartClick }: HeaderProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hidden sm:flex">
-              <User className="h-5 w-5" />
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <div className="hidden sm:flex items-center gap-2 text-sm">
+                  <span className="text-gray-600">Hola, {userEmail?.split('@')[0]}</span>
+                </div>
+                <Button variant="ghost" size="icon" onClick={onLogout} title="Cerrar sesión">
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </>
+            ) : (
+              <Button variant="ghost" size="icon" className="hidden sm:flex" onClick={onLoginClick}>
+                <User className="h-5 w-5" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" className="hidden sm:flex">
               <Heart className="h-5 w-5" />
             </Button>
