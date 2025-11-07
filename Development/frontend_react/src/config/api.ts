@@ -1,7 +1,6 @@
 // API Configuration
 // Detect if we're running in Docker (nginx proxy) or local development
 const isProduction = import.meta.env.PROD;
-const isDevelopment = import.meta.env.DEV;
 
 // In production (Docker with nginx), use window.location.origin
 // In development, use localhost URLs
