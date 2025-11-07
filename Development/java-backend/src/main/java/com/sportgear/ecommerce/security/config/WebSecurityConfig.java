@@ -46,8 +46,9 @@ public class WebSecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ⬅️ Enable CORS
                 .csrf(csrf -> csrf.disable()) // ⬅️ Necesario para APIs REST
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ⬅️ API sin sesiones
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // ⬅️ Auth público
+                        .requestMatchers("/api/auth/**").permitAll() // ⬅️ Toda autenticación y validación de usuarios
                         .requestMatchers("/api/public/**").permitAll() // ⬅️ Rutas públicas
                         .anyRequest().authenticated() // ⬅️ El resto requiere auth
                 );

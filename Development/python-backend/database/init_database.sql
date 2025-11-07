@@ -14,16 +14,6 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'sportgear_db')\gexec
 -- Create Tables
 -- =============================================
 
--- Users table
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Products table
 CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
@@ -37,10 +27,10 @@ CREATE TABLE IF NOT EXISTS products (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Orders table
+-- Orders table (user_id references MySQL users via API validation)
 CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id VARCHAR(255) NOT NULL,  -- UUID from MySQL users table
     total DECIMAL(10,2) NOT NULL CHECK (total >= 0),
     status VARCHAR(50) DEFAULT 'pending',
     shipping_address TEXT,
@@ -63,7 +53,6 @@ CREATE TABLE IF NOT EXISTS payments (
 -- Create Indexes for better performance
 -- =============================================
 
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
@@ -72,13 +61,6 @@ CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(order_id);
 -- =============================================
 -- Insert Sample Data (Optional - for testing)
 -- =============================================
-
--- Sample Users (passwords are hashed - 'password123')
-INSERT INTO users (name, email, password) VALUES 
-('Admin User', 'admin@sportgear.com', '$2b$12$hashed_password_here'),
-('Juan Perez', 'juan@example.com', '$2b$12$hashed_password_here'),
-('Maria Garcia', 'maria@example.com', '$2b$12$hashed_password_here')
-ON CONFLICT (email) DO NOTHING;
 
 -- Sample Products
 INSERT INTO products (name, description, price, category, stock_quantity) VALUES 
@@ -89,17 +71,8 @@ INSERT INTO products (name, description, price, category, stock_quantity) VALUES
 ('Tennis Racket', 'Professional tennis racket with carbon fiber', 129.99, 'Tennis', 15)
 ON CONFLICT DO NOTHING;
 
--- Sample Orders
-INSERT INTO orders (user_id, total, status, shipping_address) VALUES 
-(1, 89.99, 'completed', '123 Main St, Bogotá, Colombia'),
-(2, 169.98, 'processing', '456 Oak Ave, Medellín, Colombia')
-ON CONFLICT DO NOTHING;
-
--- Sample Payments
-INSERT INTO payments (order_id, amount, method, status, transaction_id) VALUES 
-(1, 89.99, 'credit_card', 'completed', 'TXN_001'),
-(2, 169.98, 'paypal', 'pending', 'TXN_002')
-ON CONFLICT DO NOTHING;
+-- NOTE: Orders and Payments require valid user_id from MySQL
+-- Sample data should be created via API after user registration
 
 -- =============================================
 -- Display created tables and sample data
@@ -107,9 +80,6 @@ ON CONFLICT DO NOTHING;
 
 \echo '=== Database Schema Created Successfully ==='
 \dt
-
-\echo '=== Sample Users ==='
-SELECT id, name, email FROM users;
 
 \echo '=== Sample Products ==='
 SELECT id, name, price, category FROM products;

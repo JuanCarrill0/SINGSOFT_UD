@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -58,11 +59,17 @@ public class AuthService {
         return Map.of(
             "token", token,
             "user", Map.of(
+                "userid", user.getUserID().toString(),
                 "email", user.getEmail(),
                 "firstName", user.getFirstName() != null ? user.getFirstName() : "",
                 "lastName", user.getLastName() != null ? user.getLastName() : "",
                 "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : ""
             )
         );
+    }
+
+    // 🔹 Get user by ID
+    public Optional<User> getUserById(UUID userId) {
+        return userRepository.findById(userId);
     }
 }

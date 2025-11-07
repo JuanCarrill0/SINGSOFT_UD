@@ -13,7 +13,7 @@ interface ProductCardProps {
   rating: number;
   image: string;
   inStock: boolean;
-  onAddToCart: (id: number) => void;
+  onAddToCart: (product: { id: number; name: string; price: number; image: string }) => void;
 }
 
 export function ProductCard({
@@ -63,7 +63,7 @@ export function ProductCard({
           <Button
             className="w-full"
             disabled={!inStock}
-            onClick={() => onAddToCart(id)}
+            onClick={() => onAddToCart({ id, name, price, image })}
           >
             <ShoppingCart className="h-4 w-4 mr-2" />
             Agregar al Carrito

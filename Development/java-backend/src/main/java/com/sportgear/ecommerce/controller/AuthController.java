@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -43,6 +44,7 @@ public class AuthController {
                 "token", token,
                 "message", "User registered successfully",
                 "user", Map.of(
+                    "userid", user.getUserID().toString(),
                     "email", user.getEmail(),
                     "firstName", user.getFirstName() != null ? user.getFirstName() : "",
                     "lastName", user.getLastName() != null ? user.getLastName() : ""
@@ -77,6 +79,35 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("valid", true));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("valid", false));
+        }
+    }
+
+    // Endpoint para validar usuario por ID (usado por Python backend)
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<?> getUserById(
+            @PathVariable String userId,
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
+        try {
+            java.util.UUID uuid = java.util.UUID.fromString(userId);
+            Optional<User> userOpt = authService.getUserById(uuid);
+            
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+            }
+            
+            User user = userOpt.get();
+            return ResponseEntity.ok(Map.of(
+                "userid", user.getUserID().toString(),
+                "email", user.getEmail(),
+                "firstName", user.getFirstName() != null ? user.getFirstName() : "",
+                "lastName", user.getLastName() != null ? user.getLastName() : "",
+                "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : ""
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid UUID format"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Internal server error"));
         }
     }
 }
