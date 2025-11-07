@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -24,7 +25,14 @@ public class AuthService {
             throw new RuntimeException("Email already registered");
         }
 
-        user.setPassword(user.getPasswordHash(), passwordEncoder);
+        // El passwordHash viene con el password en texto plano desde el controller
+        // Necesitamos encriptarlo antes de guardar
+        String rawPassword = user.getPasswordHash();
+        if (rawPassword == null || rawPassword.isBlank()) {
+            throw new RuntimeException("Password is required");
+        }
+        
+        user.setPassword(rawPassword, passwordEncoder);
         user.setRole(UserRole.CUSTOMER);
         userRepository.save(user);
 
@@ -32,7 +40,7 @@ public class AuthService {
     }
 
     // 🔹 Login de usuario
-    public String login(String email, String rawPassword) {
+    public Map<String, Object> login(String email, String rawPassword) {
         Optional<User> userOpt = userRepository.findByEmail(email);
 
         if (userOpt.isEmpty()) {
@@ -45,6 +53,16 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        return jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail());
+        
+        return Map.of(
+            "token", token,
+            "user", Map.of(
+                "email", user.getEmail(),
+                "firstName", user.getFirstName() != null ? user.getFirstName() : "",
+                "lastName", user.getLastName() != null ? user.getLastName() : "",
+                "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : ""
+            )
+        );
     }
 }

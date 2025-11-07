@@ -17,12 +17,36 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody Map<String, String> registerRequest) {
         try {
+            User user = new User();
+            user.setEmail(registerRequest.get("email"));
+            user.setFirstName(registerRequest.get("firstName"));
+            user.setLastName(registerRequest.get("lastName"));
+            user.setPhoneNumber(registerRequest.get("phoneNumber"));
+            
+            // Parse dateOfBirth if provided
+            String dateOfBirthStr = registerRequest.get("dateOfBirth");
+            if (dateOfBirthStr != null && !dateOfBirthStr.isBlank()) {
+                try {
+                    user.setDateOfBirth(java.time.LocalDate.parse(dateOfBirthStr));
+                } catch (Exception e) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Invalid date format. Use YYYY-MM-DD"));
+                }
+            }
+            
+            // Set password as passwordHash temporarily - service will encrypt it
+            user.setPasswordHash(registerRequest.get("password"));
+            
             String token = authService.register(user);
             return ResponseEntity.ok(Map.of(
                 "token", token,
-                "message", "User registered successfully"
+                "message", "User registered successfully",
+                "user", Map.of(
+                    "email", user.getEmail(),
+                    "firstName", user.getFirstName() != null ? user.getFirstName() : "",
+                    "lastName", user.getLastName() != null ? user.getLastName() : ""
+                )
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -35,11 +59,8 @@ public class AuthController {
             String email = loginRequest.get("email");
             String password = loginRequest.get("password");
             
-            String token = authService.login(email, password);
-            return ResponseEntity.ok(Map.of(
-                "token", token,
-                "message", "Login successful"
-            ));
+            Map<String, Object> response = authService.login(email, password);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

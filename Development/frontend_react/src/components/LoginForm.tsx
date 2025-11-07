@@ -16,6 +16,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     firstName: "",
     lastName: "",
     phoneNumber: "",
+    dateOfBirth: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,6 +35,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             firstName: formData.firstName,
             lastName: formData.lastName,
             phoneNumber: formData.phoneNumber,
+            dateOfBirth: formData.dateOfBirth,
           }
         : {
             email: formData.email,
@@ -61,6 +63,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           firstName: "",
           lastName: "",
           phoneNumber: "",
+          dateOfBirth: "",
         });
       } else {
         setError(data.message || "Error al iniciar sesión");
@@ -126,6 +129,17 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
                 placeholder="+57 300 123 4567"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="dateOfBirth">Fecha de Nacimiento</Label>
+              <Input
+                id="dateOfBirth"
+                name="dateOfBirth"
+                type="date"
+                value={formData.dateOfBirth}
+                onChange={handleInputChange}
+                placeholder="YYYY-MM-DD"
               />
             </div>
           </>
