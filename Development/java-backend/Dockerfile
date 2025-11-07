@@ -1,21 +1,33 @@
-# Usa una imagen oficial de Java
-FROM openjdk:17-jdk-slim
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-17 AS build
 
-# Directorio de trabajo en el contenedor
 WORKDIR /app
 
-# PRIMERO copia el pom.xml y descarga dependencias (para cache)
+# Copy Maven wrapper and pom.xml
+COPY mvnw .
+COPY mvnw.cmd .
+COPY .mvn .mvn
 COPY pom.xml .
+
+# Download dependencies (cached layer)
+RUN mvn dependency:go-offline -B
+
+# Copy source code
 COPY src ./src
 
-# Compila el proyecto (esto falta en tu lista)
-RUN ./mvnw clean package -DskipTests
+# Build the application
+RUN mvn clean package -DskipTests
 
-# Copia el JAR built
-COPY target/eccomerce-backend-0.0.1-SNAPSHOT.jar app.jar
+# Stage 2: Production
+FROM eclipse-temurin:17-jre-alpine
 
-# Puerto que expone la aplicación
+WORKDIR /app
+
+# Copy JAR from build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
+# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
