@@ -1,4 +1,4 @@
-package com.sportgear.ecommerce.security.config;
+package main.java.com.sportgear.ecommerce.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
