@@ -49,3 +49,6 @@ logs/
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+
+#Ignore folder with problems to delete
+ecommerce-backend/
