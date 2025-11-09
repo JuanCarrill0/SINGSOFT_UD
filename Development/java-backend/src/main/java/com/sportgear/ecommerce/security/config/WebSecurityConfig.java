@@ -22,7 +22,6 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    // ✅ ESTE BEAN ES EL QUE FALTA
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -45,12 +44,12 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ⬅️ Enable CORS
-                .csrf(csrf -> csrf.disable()) // ⬅️ Necesario para APIs REST
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ⬅️ API sin sesiones
+                .csrf(csrf -> csrf.disable()) // ⬅️ Necesary for APIs REST
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ⬅️ API without sesions
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // ⬅️ Toda autenticación y validación de usuarios
-                        .requestMatchers("/api/public/**").permitAll() // ⬅️ Rutas públicas
-                        .anyRequest().authenticated() // ⬅️ El resto requiere auth
+                        .requestMatchers("/api/auth/**").permitAll() // ⬅️ all the autentication and validation of users
+                        .requestMatchers("/api/public/**").permitAll() // ⬅️ Public routes
+                        .anyRequest().authenticated() // ⬅️ the rest require auth
                 );
 
         return http.build();

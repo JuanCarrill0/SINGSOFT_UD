@@ -26,7 +26,6 @@ public class Address {
     private String secondaryNumber;
     private String additionalInfo;
     
-    // Usando String en lugar de Supplier como en el diagrama
     private String neighborhood;
     private String city;
     
@@ -86,7 +85,7 @@ public class Address {
     public String getFullStreet() {
         StringBuilder sb = new StringBuilder();
         
-        // Solo incluir número principal y secundario
+        // just include principal and secondary number
         if (mainNumber != null && !mainNumber.isBlank()) {
             if (numberPrefix != null && !numberPrefix.isBlank()) {
                 sb.append(numberPrefix).append(" ");
@@ -97,7 +96,7 @@ public class Address {
             }
         }
         
-        // Agregar información adicional si existe
+        // add aditional information if exist
         if (additionalInfo != null && !additionalInfo.isBlank()) {
             if (sb.length() > 0) {
                 sb.append(" - ");
@@ -112,6 +111,6 @@ public class Address {
      * Checks if all critical fields are present
      */
     public boolean isComplete() {
-        return validateAddress(); // Misma lógica que validateAddress
+        return validateAddress(); // Same logic as validateAddress
     }
 }

@@ -68,21 +68,21 @@ public class AuthController {
         }
     }
 
-    // Endpoint opcional para verificar token
+    // Endpoint optional to verify token
     @GetMapping("/verify")
     public ResponseEntity<?> verifyToken(@RequestHeader("Authorization") String token) {
         try {
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            // Aquí podrías agregar lógica para verificar el token si lo necesitas
+            // Later can add the verification of the token if is needed
             return ResponseEntity.ok(Map.of("valid", true));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("valid", false));
         }
     }
 
-    // Endpoint para validar usuario por ID (usado por Python backend)
+    // Endpoint to validatethe user by ID (used by Python backend)
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUserById(
             @PathVariable String userId,
