@@ -4,6 +4,7 @@ import { ProductCard } from "../components/ProductCard";
 import { ProductFilters } from "../components/ProductFilters";
 import { Button } from "../components/ui/button";
 import { LayoutGrid, List, Loader2 } from "lucide-react";
+import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -11,17 +12,52 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { useProducts } from "../hooks/useProducts";
+import { useProducts, ProductFilters as ProductFiltersType } from "../hooks/useProducts";
 import { Alert, AlertDescription } from "../components/ui/alert";
 
 interface DashboardPageProps {
   viewMode: "grid" | "list";
   setViewMode: (m: "grid" | "list") => void;
   onAddToCart: (product: { id: number; name: string; price: number; image: string }) => void;
+  searchQuery?: string;
 }
 
-export default function DashboardPage({ viewMode, setViewMode, onAddToCart }: DashboardPageProps) {
-  const { products, loading, error, refreshProducts } = useProducts();
+export default function DashboardPage({ viewMode, setViewMode, onAddToCart, searchQuery }: DashboardPageProps) {
+  const [filters, setFilters] = useState<ProductFiltersType>({});
+  const { products, loading, error, refreshProducts, searchProducts } = useProducts(filters);
+
+  // Actualizar filtros cuando llega una búsqueda desde el header
+  const handleSearch = (query: string) => {
+    const newFilters = { ...filters, searchQuery: query };
+    setFilters(newFilters);
+    searchProducts(newFilters);
+  };
+
+  // Manejar aplicación de filtros desde el componente ProductFilters
+  const handleApplyFilters = (appliedFilters: {
+    categories: string[];
+    brands: string[];
+    sports: string[];
+    gender: string[];
+    priceRange: [number, number];
+  }) => {
+    const newFilters: ProductFiltersType = {
+      ...filters,
+      category: appliedFilters.categories.length > 0 ? appliedFilters.categories[0] : undefined,
+      brand: appliedFilters.brands.length > 0 ? appliedFilters.brands[0] : undefined,
+      sport: appliedFilters.sports.length > 0 ? appliedFilters.sports[0] : undefined,
+      gender: appliedFilters.gender.length > 0 ? appliedFilters.gender[0] : undefined,
+      minPrice: appliedFilters.priceRange[0],
+      maxPrice: appliedFilters.priceRange[1],
+    };
+    setFilters(newFilters);
+    searchProducts(newFilters);
+  };
+
+  // Ejecutar búsqueda cuando cambia searchQuery desde props
+  if (searchQuery && searchQuery !== filters.searchQuery) {
+    handleSearch(searchQuery);
+  }
 
   return (
     <main>
@@ -35,10 +71,14 @@ export default function DashboardPage({ viewMode, setViewMode, onAddToCart }: Da
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
               <h2 className="text-3xl mb-2">Productos Destacados</h2>
-              <p className="text-gray-600">Descubre nuestra selección de productos premium</p>
+              <p className="text-gray-600">
+                {filters.searchQuery 
+                  ? `Resultados para: "${filters.searchQuery}"` 
+                  : "Descubre nuestra selección de productos premium"}
+              </p>
             </div>
             <div className="flex items-center gap-2">
-              <ProductFilters />
+              <ProductFilters onApplyFilters={handleApplyFilters} />
               <Select defaultValue="popular">
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Ordenar por" />

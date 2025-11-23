@@ -1,16 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrders, Order } from '../hooks/useOrders';
+import { useShipments, Shipment } from '../hooks/useShipments';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Alert, AlertDescription } from '../components/ui/alert';
-import { Loader2, Package, Calendar, MapPin, DollarSign, ArrowLeft } from 'lucide-react';
+import { Loader2, Package, Calendar, MapPin, DollarSign, ArrowLeft, Truck } from 'lucide-react';
+import ShipmentTracker from '../components/ShipmentTracker';
 
 export default function OrdersPage() {
   const navigate = useNavigate();
   const { orders, loading, error, fetchOrders } = useOrders();
+  const { getShipmentByOrder } = useShipments();
   const [userId, setUserId] = useState<string | null>(null);
+  const [shipmentData, setShipmentData] = useState<Record<number, Shipment | null>>({});
+  const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     // Obtener userId del localStorage
@@ -32,6 +37,34 @@ export default function OrdersPage() {
     setUserId(id);
     fetchOrders(id);
   }, []);
+
+  // Load shipment data when orders change
+  useEffect(() => {
+    const loadShipments = async () => {
+      const shipments: Record<number, Shipment | null> = {};
+      for (const order of orders) {
+        const shipment = await getShipmentByOrder(order.id);
+        shipments[order.id] = shipment;
+      }
+      setShipmentData(shipments);
+    };
+
+    if (orders.length > 0) {
+      loadShipments();
+    }
+  }, [orders]);
+
+  const toggleOrderExpansion = (orderId: number) => {
+    setExpandedOrders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(orderId)) {
+        newSet.delete(orderId);
+      } else {
+        newSet.add(orderId);
+      }
+      return newSet;
+    });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -181,10 +214,20 @@ export default function OrdersPage() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => navigate(`/orders/${order.id}`)}
+                    onClick={() => toggleOrderExpansion(order.id)}
                   >
-                    Ver Detalles
+                    {expandedOrders.has(order.id) ? 'Ocultar' : 'Ver'} Detalles
                   </Button>
+                  {shipmentData[order.id] && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toggleOrderExpansion(order.id)}
+                    >
+                      <Truck className="h-4 w-4 mr-2" />
+                      Seguimiento
+                    </Button>
+                  )}
                   {order.status === 'pending' && (
                     <Button 
                       variant="destructive" 
@@ -200,6 +243,13 @@ export default function OrdersPage() {
                     </Button>
                   )}
                 </div>
+
+                {/* Shipment Tracking Section */}
+                {expandedOrders.has(order.id) && (
+                  <div className="mt-4 pt-4 border-t">
+                    <ShipmentTracker shipment={shipmentData[order.id]} orderId={order.id} />
+                  </div>
+                )}
               </Card>
             ))}
           </div>

@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS products (
     description TEXT,
     price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
     category VARCHAR(100),
+    brand VARCHAR(100),
+    sport VARCHAR(100),
+    gender VARCHAR(20),
     in_stock BOOLEAN DEFAULT TRUE,
     stock_quantity INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -49,26 +52,46 @@ CREATE TABLE IF NOT EXISTS payments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Shipments table
+CREATE TABLE IF NOT EXISTS shipments (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL UNIQUE REFERENCES orders(id) ON DELETE CASCADE,
+    tracking_number VARCHAR(100) UNIQUE,
+    carrier VARCHAR(100),
+    vehicle_info TEXT,
+    status VARCHAR(50) DEFAULT 'pending',
+    shipped_at TIMESTAMP,
+    delivered_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- =============================================
 -- Create Indexes for better performance
 -- =============================================
 
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
+CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand);
+CREATE INDEX IF NOT EXISTS idx_products_sport ON products(sport);
+CREATE INDEX IF NOT EXISTS idx_products_gender ON products(gender);
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(order_id);
+CREATE INDEX IF NOT EXISTS idx_shipments_order_id ON shipments(order_id);
+CREATE INDEX IF NOT EXISTS idx_shipments_tracking_number ON shipments(tracking_number);
+CREATE INDEX IF NOT EXISTS idx_shipments_status ON shipments(status);
 
 -- =============================================
 -- Insert Sample Data (Optional - for testing)
 -- =============================================
 
 -- Sample Products
-INSERT INTO products (name, description, price, category, stock_quantity) VALUES 
-('Professional Football', 'Official size 5 football for professional matches', 49.99, 'Football', 50),
-('Basketball Pro', 'High-quality indoor/outdoor basketball', 39.99, 'Basketball', 30),
-('Running Shoes', 'Lightweight running shoes with cushion technology', 89.99, 'Footwear', 25),
-('Yoga Mat', 'Non-slip premium yoga mat', 29.99, 'Fitness', 40),
-('Tennis Racket', 'Professional tennis racket with carbon fiber', 129.99, 'Tennis', 15)
+INSERT INTO products (name, description, price, category, brand, sport, gender, stock_quantity) VALUES 
+('Professional Football', 'Official size 5 football for professional matches', 49.99, 'Equipamiento', 'Nike', 'Fútbol', 'Unisex', 50),
+('Basketball Pro', 'High-quality indoor/outdoor basketball', 39.99, 'Equipamiento', 'Wilson', 'Basketball', 'Unisex', 30),
+('Running Shoes', 'Lightweight running shoes with cushion technology', 89.99, 'Calzado', 'Adidas', 'Running', 'Unisex', 25),
+('Yoga Mat', 'Non-slip premium yoga mat', 29.99, 'Fitness', 'Nike', 'Yoga', 'Unisex', 40),
+('Tennis Racket', 'Professional tennis racket with carbon fiber', 129.99, 'Equipamiento', 'Wilson', 'Tennis', 'Unisex', 15)
 ON CONFLICT DO NOTHING;
 
 -- NOTE: Orders and Payments require valid user_id from MySQL

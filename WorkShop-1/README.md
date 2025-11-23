@@ -12,7 +12,7 @@
 - Alejandro Sebastián González Torres - 20191020143  
 - Miguel Angel Babativa Niño - 20191020069
 
-## 📋 Workshop Deliverables
+## Workshop Deliverables
 
 ### 1. Business Model Canvas
 Complete Business Model Canvas for our e-commerce sports equipment platform, defining:
@@ -36,5 +36,5 @@ CRC (Class-Responsibility-Collaborator) cards for at least 3 main classes:
 - Class name, responsibilities, and collaborators
 - Object-oriented design foundation
 
-## 🚀 Project Overview
+## Project Overview
 SportGear Online is an e-commerce platform specializing in sports equipment and apparel. The platform will allow users to browse products by sport and category, manage shopping carts, process orders, and track shipments.

@@ -1,4 +1,4 @@
-package test.java.com.sportgear.ecommerce.security;
+package com.sportgear.ecommerce.security;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -9,4 +9,8 @@ class Product(Base):
     description = Column(String(500))
     price = Column(Float, nullable=False)
     category = Column(String(100))
+    brand = Column(String(100))
+    sport = Column(String(100))
+    gender = Column(String(20))
     in_stock = Column(Boolean, default=True)
+    stock_quantity = Column(Integer, default=0)

@@ -2,10 +2,15 @@
 Fixtures compartidos para todas las pruebas
 """
 import pytest
+import os
+import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
-from app.main import app
+
+# Prevenir la creación automática de tablas al importar
+os.environ["TESTING"] = "1"
+
 from app.database import Base, get_db
 
 # Base de datos en memoria para pruebas
@@ -32,6 +37,9 @@ def db_session():
 @pytest.fixture(scope="function")
 def client(db_session):
     """Cliente de prueba de FastAPI con override de dependencias"""
+    # Importar app aquí para evitar ejecución de código al nivel del módulo
+    from app.main import app
+    
     def override_get_db():
         try:
             yield db_session

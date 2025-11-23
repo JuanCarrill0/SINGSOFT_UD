@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Checkbox } from "./ui/checkbox";
 import { Slider } from "./ui/slider";
+import { useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -12,12 +13,12 @@ import {
 } from "./ui/sheet";
 
 const categories = [
-  "Calzado Deportivo",
-  "Ropa Deportiva",
-  "Equipamiento Gym",
-  "Ciclismo",
-  "Deportes de Equipo",
+  "Calzado",
+  "Ropa",
+  "Equipamiento",
+  "Fitness",
   "Accesorios",
+  "Tecnología",
 ];
 
 const brands = [
@@ -29,30 +30,115 @@ const brands = [
   "New Balance",
 ];
 
-const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+const sports = [
+  "Fútbol",
+  "Basketball",
+  "Running",
+  "Fitness",
+  "Tennis",
+  "Ciclismo",
+  "Natación",
+  "Yoga",
+];
 
-export function ProductFilters() {
+const genders = [
+  { value: "Hombre", label: "Hombre" },
+  { value: "Mujer", label: "Mujer" },
+  { value: "Unisex", label: "Unisex" },
+];
+
+interface ProductFiltersProps {
+  onApplyFilters?: (filters: {
+    categories: string[];
+    brands: string[];
+    sports: string[];
+    gender: string[];
+    priceRange: [number, number];
+  }) => void;
+}
+
+export function ProductFilters({ onApplyFilters }: ProductFiltersProps) {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedSports, setSelectedSports] = useState<string[]>([]);
+  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 200000]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleSelection = (item: string, list: string[], setter: (items: string[]) => void) => {
+    if (list.includes(item)) {
+      setter(list.filter((i) => i !== item));
+    } else {
+      setter([...list, item]);
+    }
+  };
+
+  const handleApplyFilters = () => {
+    if (onApplyFilters) {
+      onApplyFilters({
+        categories: selectedCategories,
+        brands: selectedBrands,
+        sports: selectedSports,
+        gender: selectedGenders,
+        priceRange,
+      });
+    }
+    setIsOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedCategories([]);
+    setSelectedBrands([]);
+    setSelectedSports([]);
+    setSelectedGenders([]);
+    setPriceRange([0, 200000]);
+    if (onApplyFilters) {
+      onApplyFilters({
+        categories: [],
+        brands: [],
+        sports: [],
+        gender: [],
+        priceRange: [0, 200000],
+      });
+    }
+  };
+
+  const activeFiltersCount = 
+    selectedCategories.length + 
+    selectedBrands.length + 
+    selectedSports.length + 
+    selectedGenders.length;
+
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" className="gap-2">
           <SlidersHorizontal className="h-4 w-4" />
           Filtros
+          {activeFiltersCount > 0 && (
+            <span className="ml-1 bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs">
+              {activeFiltersCount}
+            </span>
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Filtros</SheetTitle>
+          <SheetTitle>Filtros de Búsqueda</SheetTitle>
         </SheetHeader>
 
         <div className="space-y-6 py-6">
           {/* Categories */}
           <div>
-            <h3 className="text-sm mb-4">Categorías</h3>
+            <h3 className="text-sm font-semibold mb-4">Categorías</h3>
             <div className="space-y-3">
               {categories.map((category) => (
                 <div key={category} className="flex items-center space-x-2">
-                  <Checkbox id={`cat-${category}`} />
+                  <Checkbox 
+                    id={`cat-${category}`}
+                    checked={selectedCategories.includes(category)}
+                    onCheckedChange={() => toggleSelection(category, selectedCategories, setSelectedCategories)}
+                  />
                   <Label htmlFor={`cat-${category}`} className="text-sm cursor-pointer">
                     {category}
                   </Label>
@@ -61,23 +147,53 @@ export function ProductFilters() {
             </div>
           </div>
 
+          {/* Sports */}
+          <div>
+            <h3 className="text-sm font-semibold mb-4">Deportes</h3>
+            <div className="space-y-3">
+              {sports.map((sport) => (
+                <div key={sport} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`sport-${sport}`}
+                    checked={selectedSports.includes(sport)}
+                    onCheckedChange={() => toggleSelection(sport, selectedSports, setSelectedSports)}
+                  />
+                  <Label htmlFor={`sport-${sport}`} className="text-sm cursor-pointer">
+                    {sport}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Price range */}
           <div>
-            <h3 className="text-sm mb-4">Rango de Precio</h3>
-            <Slider defaultValue={[20000, 150000]} max={200000} step={5000} className="mb-4" />
+            <h3 className="text-sm font-semibold mb-4">Rango de Precio</h3>
+            <Slider 
+              value={priceRange} 
+              onValueChange={(value) => setPriceRange(value as [number, number])}
+              max={200000} 
+              min={0}
+              step={5000} 
+              className="mb-4" 
+            />
             <div className="flex justify-between text-sm text-gray-600">
-              <span>$20.000</span>
-              <span>$150.000</span>
+              <span>${priceRange[0].toLocaleString()}</span>
+              <span>${priceRange[1].toLocaleString()}</span>
             </div>
           </div>
 
           {/* Brands */}
           <div>
-            <h3 className="text-sm mb-4">Marcas</h3>
+            <h3 className="text-sm font-semibold mb-4">Marcas</h3>
             <div className="space-y-3">
               {brands.map((brand) => (
                 <div key={brand} className="flex items-center space-x-2">
-                  <Checkbox id={`brand-${brand}`} />
+                  <Checkbox 
+                    id={`brand-${brand}`}
+                    checked={selectedBrands.includes(brand)}
+                    onCheckedChange={() => toggleSelection(brand, selectedBrands, setSelectedBrands)}
+                  />
                   <Label htmlFor={`brand-${brand}`} className="text-sm cursor-pointer">
                     {brand}
                   </Label>
@@ -86,27 +202,19 @@ export function ProductFilters() {
             </div>
           </div>
 
-          {/* Sizes */}
+          {/* Gender */}
           <div>
-            <h3 className="text-sm mb-4">Tallas</h3>
-            <div className="flex flex-wrap gap-2">
-              {sizes.map((size) => (
-                <Button key={size} variant="outline" size="sm" className="w-12">
-                  {size}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Rating */}
-          <div>
-            <h3 className="text-sm mb-4">Valoración</h3>
+            <h3 className="text-sm font-semibold mb-4">Género</h3>
             <div className="space-y-3">
-              {[5, 4, 3, 2, 1].map((rating) => (
-                <div key={rating} className="flex items-center space-x-2">
-                  <Checkbox id={`rating-${rating}`} />
-                  <Label htmlFor={`rating-${rating}`} className="text-sm cursor-pointer">
-                    {rating}★ y superior
+              {genders.map((gender) => (
+                <div key={gender.value} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`gender-${gender.value}`}
+                    checked={selectedGenders.includes(gender.value)}
+                    onCheckedChange={() => toggleSelection(gender.value, selectedGenders, setSelectedGenders)}
+                  />
+                  <Label htmlFor={`gender-${gender.value}`} className="text-sm cursor-pointer">
+                    {gender.label}
                   </Label>
                 </div>
               ))}
@@ -114,11 +222,13 @@ export function ProductFilters() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2 pt-4">
-            <Button variant="outline" className="flex-1">
+          <div className="flex gap-2 pt-4 border-t">
+            <Button variant="outline" className="flex-1" onClick={handleClearFilters}>
               Limpiar
             </Button>
-            <Button className="flex-1">Aplicar Filtros</Button>
+            <Button className="flex-1" onClick={handleApplyFilters}>
+              Aplicar Filtros
+            </Button>
           </div>
         </div>
       </SheetContent>

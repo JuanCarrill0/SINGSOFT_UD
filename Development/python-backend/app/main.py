@@ -6,6 +6,7 @@ from app.database import engine, Base
 from app.models.product import Product
 from app.models.order import Order
 from app.models.payment import Payment
+from app.models.shipment import Shipment
 
 # Crear tablas
 Base.metadata.create_all(bind=engine)
@@ -30,10 +31,12 @@ try:
     from app.routes.product_routes import router as product_router
     from app.routes.order_routes import router as order_router
     from app.routes.payment_routes import router as payment_router
+    from app.routes.shipment_routes import router as shipment_router
     
     app.include_router(product_router, prefix="/api/v1", tags=["products"])
     app.include_router(order_router, prefix="/api/v1", tags=["orders"])
     app.include_router(payment_router, prefix="/api/v1", tags=["payments"])
+    app.include_router(shipment_router, prefix="/api/v1", tags=["shipments"])
     
     print("✅ All routes loaded successfully")
     print("📊 Database: PostgreSQL (Business Logic)")
@@ -50,7 +53,8 @@ def root():
         "endpoints": {
             "products": "/api/v1/products",
             "orders": "/api/v1/orders",
-            "payments": "/api/v1/payments"
+            "payments": "/api/v1/payments",
+            "shipments": "/api/v1/shipments"
         }
     }
 

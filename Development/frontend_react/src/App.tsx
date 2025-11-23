@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
+import ShipmentsManagementPage from './pages/ShipmentsManagementPage';
 
 interface CartItem {
   id: number;
@@ -30,6 +31,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const navigate = useNavigate();
 
   // Verificar si hay sesión guardada al cargar
@@ -97,6 +99,14 @@ export default function App() {
     setCartItems([]);
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // Navegar al dashboard si no está allí
+    if (window.location.pathname !== '/dashboard' && window.location.pathname !== '/') {
+      navigate('/dashboard');
+    }
+  };
+
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -108,6 +118,7 @@ export default function App() {
         isLoggedIn={isLoggedIn}
         userEmail={user?.email}
         onLogout={handleLogout}
+        onSearch={handleSearch}
       />
       <div className="flex-1">
         <Routes>
@@ -122,6 +133,7 @@ export default function App() {
                 viewMode={viewMode}
                 setViewMode={setViewMode}
                 onAddToCart={handleAddToCart}
+                searchQuery={searchQuery}
               />
             }
           />
@@ -137,6 +149,10 @@ export default function App() {
           <Route
             path="/orders"
             element={isLoggedIn ? <OrdersPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/shipments"
+            element={isLoggedIn ? <ShipmentsManagementPage /> : <Navigate to="/login" replace />}
           />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

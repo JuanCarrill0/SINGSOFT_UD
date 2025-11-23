@@ -7,6 +7,9 @@ export interface Product {
   description?: string;
   price: number;
   category: string;
+  brand?: string;
+  sport?: string;
+  gender?: string;
   in_stock: boolean;
   stock_quantity: number;
   created_at?: string;
@@ -20,6 +23,17 @@ export interface ProductDisplay extends Product {
   inStock: boolean;
 }
 
+export interface ProductFilters {
+  searchQuery?: string;
+  category?: string;
+  brand?: string;
+  sport?: string;
+  gender?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStockOnly?: boolean;
+}
+
 // Mapa de imágenes por categoría
 const categoryImages: Record<string, string> = {
   'Football': 'https://images.unsplash.com/photo-1587103365297-77661edc549d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2NjZXIlMjBmb290YmFsbCUyMGJhbGx8ZW58MXx8fHwxNzYwNDA1NzY0fDA&ixlib=rb-4.1.0&q=80&w=1080',
@@ -30,21 +44,40 @@ const categoryImages: Record<string, string> = {
   'default': 'https://images.unsplash.com/photo-1587350866945-5aa311427deb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjeWNsaW5nJTIwYmljeWNsZXxlbnwxfHx8fDE3NjA0MDU3NjV8MA&ixlib=rb-4.1.0&q=80&w=1080',
 };
 
-export function useProducts() {
+export function useProducts(filters?: ProductFilters) {
   const [products, setProducts] = useState<ProductDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    fetchProducts(filters);
+  }, [filters?.searchQuery, filters?.category, filters?.brand, filters?.sport, filters?.gender, filters?.minPrice, filters?.maxPrice, filters?.inStockOnly]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (searchFilters?: ProductFilters) => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(API_ENDPOINTS.PRODUCTS.LIST);
+      // Construir URL con parámetros de búsqueda
+      let url = API_ENDPOINTS.PRODUCTS.LIST;
+      
+      if (searchFilters && Object.keys(searchFilters).length > 0) {
+        // Usar endpoint de búsqueda si hay filtros
+        const params = new URLSearchParams();
+        
+        if (searchFilters.searchQuery) params.append('q', searchFilters.searchQuery);
+        if (searchFilters.category) params.append('category', searchFilters.category);
+        if (searchFilters.brand) params.append('brand', searchFilters.brand);
+        if (searchFilters.sport) params.append('sport', searchFilters.sport);
+        if (searchFilters.gender) params.append('gender', searchFilters.gender);
+        if (searchFilters.minPrice !== undefined) params.append('min_price', searchFilters.minPrice.toString());
+        if (searchFilters.maxPrice !== undefined) params.append('max_price', searchFilters.maxPrice.toString());
+        if (searchFilters.inStockOnly) params.append('in_stock', 'true');
+        
+        url = `${API_ENDPOINTS.PRODUCTS.LIST}/search?${params.toString()}`;
+      }
+
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error('Error al cargar los productos');
@@ -75,8 +108,12 @@ export function useProducts() {
     }
   };
 
-  const refreshProducts = () => {
-    fetchProducts();
+  const refreshProducts = (newFilters?: ProductFilters) => {
+    fetchProducts(newFilters);
+  };
+
+  const searchProducts = (searchFilters: ProductFilters) => {
+    fetchProducts(searchFilters);
   };
 
   return {
@@ -84,5 +121,6 @@ export function useProducts() {
     loading,
     error,
     refreshProducts,
+    searchProducts,
   };
 }

@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useState, KeyboardEvent } from "react";
 
 interface HeaderProps {
   cartItemsCount: number;
@@ -11,10 +12,24 @@ interface HeaderProps {
   isLoggedIn: boolean;
   userEmail?: string;
   onLogout: () => void;
+  onSearch?: (query: string) => void;
 }
 
-export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, userEmail, onLogout }: HeaderProps) {
+export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, userEmail, onLogout, onSearch }: HeaderProps) {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const handleSearch = () => {
+    if (onSearch && searchQuery.trim()) {
+      onSearch(searchQuery.trim());
+    }
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
@@ -36,13 +51,21 @@ export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, 
 
           {/* Search bar */}
           <div className="hidden md:flex flex-1 max-w-xl">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                type="search"
-                placeholder="Buscar productos deportivos..."
-                className="pl-10 w-full"
-              />
+            <div className="relative w-full flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="search"
+                  placeholder="Buscar productos deportivos..."
+                  className="pl-10 w-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                />
+              </div>
+              <Button onClick={handleSearch} size="sm">
+                Buscar
+              </Button>
             </div>
           </div>
 
@@ -81,13 +104,21 @@ export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, 
 
         {/* Mobile search */}
         <div className="md:hidden mt-4">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              type="search"
-              placeholder="Buscar productos..."
-              className="pl-10 w-full"
-            />
+          <div className="relative w-full flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                type="search"
+                placeholder="Buscar productos..."
+                className="pl-10 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+            </div>
+            <Button onClick={handleSearch} size="sm">
+              <Search className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
-package test.java.com.sportgear.ecommerce.controller;
+package com.sportgear.ecommerce.controller;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sportgear.ecommerce.model.User;
 import com.sportgear.ecommerce.service.AuthService;

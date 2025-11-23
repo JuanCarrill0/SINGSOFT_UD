@@ -51,6 +51,17 @@ def update_order(db: Session, order_id: int, order_update: OrderUpdate):
     db.refresh(db_order)
     return db_order
 
+def update_order_status(db: Session, order_id: int, new_status: str):
+    """Update only the order status"""
+    db_order = db.query(Order).filter(Order.id == order_id).first()
+    if not db_order:
+        return None
+    
+    db_order.status = new_status
+    db.commit()
+    db.refresh(db_order)
+    return db_order
+
 def delete_order(db: Session, order_id: int):
     db_order = db.query(Order).filter(Order.id == order_id).first()
     if db_order:
