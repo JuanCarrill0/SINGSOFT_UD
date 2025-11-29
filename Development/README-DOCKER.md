@@ -2,6 +2,7 @@
 
 ## 🚀 Descripción
 
+
 Aplicación completa de e-commerce dockerizada con arquitectura de microservicios:
 
 - **Frontend**: React + Vite + TypeScript con Nginx
