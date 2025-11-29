@@ -23,3 +23,5 @@ A simple full-stack e-commerce application for sports equipment built with React
 - Juan Esteban Carrillo Garcia
 - Alejandro Sebastián González Torres
 - Miguel Angel Babativa Niño
+- 
+
