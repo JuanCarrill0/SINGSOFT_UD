@@ -11,6 +11,7 @@ Aplicación completa de e-commerce dockerizada con arquitectura de microservicio
 
 ## 📋 Prerrequisitos
 
+
 - Docker Desktop instalado y corriendo
 - Puertos disponibles: 3000, 3307, 5433, 8001, 8081
 
