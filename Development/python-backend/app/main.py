@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 
@@ -25,6 +26,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ========== HEALTH CHECK ENDPOINTS ==========
+@app.get("/api/health")
+async def health_check():
+    return {
+        "status": "healthy", 
+        "service": "Python FastAPI Backend - SportGear Online",
+        "timestamp": datetime.now().isoformat(),
+        "database": "PostgreSQL"
+    }
+
+@app.get("/api/health/detailed")
+async def detailed_health_check():
+    return {
+        "status": "healthy",
+        "service": "Python FastAPI Backend - SportGear Online",
+        "timestamp": datetime.now().isoformat(),
+        "version": "1.0.0",
+        "environment": "development",
+        "database": "PostgreSQL",
+        "description": "Business Logic Backend"
+    }
 
 # Routers - sin user_routes (usuarios están en MySQL)
 try:
@@ -65,3 +88,7 @@ def health_check():
         "database": "PostgreSQL",
         "auth_service": "MySQL (via Spring Boot)"
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

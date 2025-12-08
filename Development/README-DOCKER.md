@@ -2,6 +2,7 @@
 
 ## 🚀 Descripción
 
+
 Aplicación completa de e-commerce dockerizada con arquitectura de microservicios:
 
 - **Frontend**: React + Vite + TypeScript con Nginx
@@ -9,6 +10,7 @@ Aplicación completa de e-commerce dockerizada con arquitectura de microservicio
 - **Backend Lógica de Negocio**: FastAPI + PostgreSQL
 
 ## 📋 Prerrequisitos
+
 
 - Docker Desktop instalado y corriendo
 - Puertos disponibles: 3000, 3307, 5433, 8001, 8081
