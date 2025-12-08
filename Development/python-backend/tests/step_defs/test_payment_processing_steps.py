@@ -6,6 +6,9 @@ import pytest
 from pytest_bdd import scenarios, given, when, then, parsers
 import requests
 
+# import shared/common step definitions so scenario steps can be resolved
+from tests.step_defs.test_common_steps import *  # noqa: F401,F403
+
 scenarios('../features/payment_processing.feature')
 
 PAYMENTS_API_BASE_URL = "http://localhost:8000/api/payments"

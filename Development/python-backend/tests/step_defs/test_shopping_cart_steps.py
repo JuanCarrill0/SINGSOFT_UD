@@ -8,6 +8,9 @@ import requests
 
 scenarios('../features/shopping_cart.feature')
 
+# Reuse shared/common step definitions
+from tests.step_defs.test_common_steps import *  # noqa: F401,F403
+
 CART_API_BASE_URL = "http://localhost:8000/api/cart"
 PRODUCTS_API_BASE_URL = "http://localhost:8000/api/products"
 

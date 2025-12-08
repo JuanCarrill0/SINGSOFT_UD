@@ -6,6 +6,9 @@ import pytest
 from pytest_bdd import scenarios, given, when, then, parsers
 import requests
 
+# Import common generic steps so feature scenarios can reuse them
+from tests.step_defs.test_common_steps import *  # noqa: F401,F403
+
 scenarios('../features/checkout_process.feature')
 
 CHECKOUT_API_BASE_URL = "http://localhost:8000/api/checkout"

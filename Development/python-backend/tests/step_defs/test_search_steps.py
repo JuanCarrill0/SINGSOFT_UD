@@ -2,6 +2,9 @@ import pytest
 from pytest_bdd import scenarios, given, when, then, parsers
 import requests
 
+# Reuse shared/common step definitions
+from tests.step_defs.test_common_steps import *  # noqa: F401,F403
+
 scenarios('../features/search_test.feature')
 
 PRODUCTS_API_BASE_URL = "http://localhost:8000/api/products"

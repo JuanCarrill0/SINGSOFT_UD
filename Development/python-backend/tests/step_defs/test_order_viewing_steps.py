@@ -7,6 +7,9 @@ from pytest_bdd import scenarios, given, when, then, parsers
 import requests
 from datetime import datetime
 
+# import shared/common step definitions so scenario steps can be resolved
+from tests.step_defs.test_common_steps import *  # noqa: F401,F403
+
 scenarios('../features/order_viewing.feature')
 
 ORDERS_API_BASE_URL = "http://localhost:8000/api/orders"

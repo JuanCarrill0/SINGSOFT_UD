@@ -3,8 +3,9 @@
 Step definitions for product catalog tests
 """
 import pytest
-from pytest_bdd import scenarios, given, when, then, parsers
+from pytest_bdd import given, when, then, parsers, scenarios
 import requests
+from tests.step_defs.test_common_steps import *  # noqa: F401,F403
 
 scenarios('../features/product_catalog.feature')
 

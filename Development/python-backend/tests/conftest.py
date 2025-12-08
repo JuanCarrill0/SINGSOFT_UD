@@ -12,6 +12,8 @@ from fastapi.testclient import TestClient
 os.environ["TESTING"] = "1"
 
 from app.database import Base, get_db
+# Import common step definitions so pytest-bdd can find them when scenarios are declared
+from .step_defs import test_common_steps  # noqa: F401
 
 # Base de datos en memoria para pruebas
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
