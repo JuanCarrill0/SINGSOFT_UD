@@ -1,9 +1,10 @@
-import { ShoppingCart, Search, User, Menu, Heart, LogOut, Package } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, Heart, LogOut, Package, Truck, ClipboardList, Languages } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useState, KeyboardEvent } from "react";
+import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
   cartItemsCount: number;
@@ -18,6 +19,29 @@ interface HeaderProps {
 export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, userEmail, onLogout, onSearch }: HeaderProps) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const { t, i18n } = useTranslation();
+  
+  // Language toggle function
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'es' ? 'en' : 'es';
+    i18n.changeLanguage(newLang);
+  };
+  
+  // Get user role from localStorage
+  const getUserRole = (): string => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return 'CUSTOMER';
+    try {
+      const user = JSON.parse(userStr);
+      return user.role || 'CUSTOMER';
+    } catch (e) {
+      return 'CUSTOMER';
+    }
+  };
+
+  const userRole = getUserRole();
+  const isOperator = userRole === 'LOGISTICS_OPERATOR' || userRole === 'SYSTEM_ADMIN';
+  const isAdmin = userRole === 'SYSTEM_ADMIN' || userRole === 'STORE_ADMIN';
   
   const handleSearch = () => {
     if (onSearch && searchQuery.trim()) {
@@ -35,7 +59,7 @@ export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, 
     <header className="sticky top-0 z-50 w-full border-b bg-white">
       {/* Top banner */}
       <div className="bg-black text-white py-2 px-4 text-center">
-        <p className="text-sm">🔥 Envío gratis en compras superiores a $50.000</p>
+        <p className="text-sm">🔥 {i18n.language === 'es' ? 'Envío gratis en compras superiores a $50.000' : 'Free shipping on orders over $50,000'}</p>
       </div>
       
       {/* Main header */}
@@ -56,7 +80,7 @@ export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, 
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="search"
-                  placeholder="Buscar productos deportivos..."
+                  placeholder={t('products.search')}
                   className="pl-10 w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -64,22 +88,46 @@ export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, 
                 />
               </div>
               <Button onClick={handleSearch} size="sm">
-                Buscar
+                {t('common.search')}
               </Button>
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {/* Language Toggle Button - Llamativo */}
+            <Button
+              size="sm"
+              onClick={toggleLanguage}
+              className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-black hover:text-white border-0 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg font-semibold"
+              title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+            >
+              <Languages className="h-4 w-4" />
+              <span className="uppercase font-bold">{i18n.language === 'es' ? 'EN' : 'ES'}</span>
+            </Button>
+            
             {isLoggedIn ? (
               <>
                 <div className="hidden sm:flex items-center gap-2 text-sm">
-                  <span className="text-gray-600">Hola, {userEmail?.split('@')[0]}</span>
+                  <span className="text-gray-600">{i18n.language === 'es' ? 'Hola' : 'Hello'}, {userEmail?.split('@')[0]}</span>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => navigate('/orders')} title="Mis Órdenes">
+                <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} title={t('nav.profile')}>
+                  <User className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => navigate('/orders')} title={t('nav.orders')}>
                   <Package className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={onLogout} title="Cerrar sesión">
+                {isOperator && (
+                  <>
+                    <Button variant="ghost" size="icon" onClick={() => navigate('/admin/orders')} title={t('nav.orderManagement')}>
+                      <ClipboardList className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => navigate('/shipments')} title={t('nav.shipments')}>
+                      <Truck className="h-5 w-5" />
+                    </Button>
+                  </>
+                )}
+                <Button variant="ghost" size="icon" onClick={onLogout} title={t('nav.logout')}>
                   <LogOut className="h-5 w-5" />
                 </Button>
               </>
@@ -105,11 +153,20 @@ export function Header({ cartItemsCount, onCartClick, onLoginClick, isLoggedIn, 
         {/* Mobile search */}
         <div className="md:hidden mt-4">
           <div className="relative w-full flex gap-2">
+            {/* Mobile Language Toggle */}
+            <Button
+              size="sm"
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 bg-gradient-to-r from-blue-500 to-purple-600 text-black hover:text-white border-0 hover:from-blue-600 hover:to-purple-700 px-3 shadow-md hover:shadow-lg font-semibold"
+              title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+            >
+              <Languages className="h-4 w-4" />
+            </Button>
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 type="search"
-                placeholder="Buscar productos..."
+                placeholder={t('products.search')}
                 className="pl-10 w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

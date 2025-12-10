@@ -138,10 +138,10 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
           <div className="flex items-center gap-2">
-            <span className="text-xl text-blue-400">SPORTIFY</span>
+            <span className="text-xl text-blue-400">SportGear Online</span>
           </div>
           <p className="text-gray-500">
-            © 2025 Sportify. Todos los derechos reservados.
+            © 2025 SportGear Online. Todos los derechos reservados.
           </p>
           <div className="flex gap-4">
             <span className="text-gray-500">🇨🇴 Colombia</span>

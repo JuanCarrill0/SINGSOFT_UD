@@ -11,6 +11,7 @@ class ProductBase(BaseModel):
     gender: Optional[str] = None
     in_stock: bool = True
     stock_quantity: int = 0
+    image_url: Optional[str] = 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400'
 
 class ProductCreate(ProductBase):
     pass
@@ -25,6 +26,7 @@ class ProductUpdate(BaseModel):
     gender: Optional[str] = None
     in_stock: Optional[bool] = None
     stock_quantity: Optional[int] = None
+    image_url: Optional[str] = None
 
 class ProductResponse(ProductBase):
     id: int

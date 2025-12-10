@@ -6,8 +6,10 @@ from app.database import engine, Base
 # Importar modelos (sin User - ahora está en MySQL)
 from app.models.product import Product
 from app.models.order import Order
+from app.models.order_item import OrderItem
 from app.models.payment import Payment
 from app.models.shipment import Shipment
+from app.models.customer_profile import CustomerProfile
 
 # Crear tablas
 Base.metadata.create_all(bind=engine)

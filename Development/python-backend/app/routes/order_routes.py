@@ -9,7 +9,8 @@ from app.crud.order_crud import (
     get_orders_by_user,
     create_order, 
     update_order,
-    delete_order
+    delete_order,
+    update_order_status
 )
 
 router = APIRouter()
@@ -70,3 +71,11 @@ def delete_existing_order(order_id: int, db: Session = Depends(get_db)):
     if not delete_order(db, order_id):
         raise HTTPException(status_code=404, detail="Order not found")
     return {"message": "Order deleted successfully"}
+
+@router.post("/orders/{order_id}/cancel", response_model=OrderResponse)
+def cancel_order(order_id: int, db: Session = Depends(get_db)):
+    """Cancel an order by setting status to 'cancelled'"""
+    db_order = update_order_status(db, order_id, "cancelled")
+    if db_order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return db_order

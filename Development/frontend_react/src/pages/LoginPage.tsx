@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { LoginForm } from "../components/LoginForm";
 
 interface LoginSuccessPayload {
@@ -8,6 +9,7 @@ interface LoginSuccessPayload {
 
 export default function LoginPage({ onSuccess }: { onSuccess?: (data: LoginSuccessPayload) => void }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLoginSuccess = (token: string, user: any) => {
     onSuccess?.({ token, user });
@@ -23,7 +25,7 @@ export default function LoginPage({ onSuccess }: { onSuccess?: (data: LoginSucce
             <div className="text-center mb-8">
               <div className="text-5xl mb-4">🏃‍♂️</div>
               <h2 className="text-2xl mb-2">SportGear Online</h2>
-              <p className="text-sm text-gray-600">Tu tienda de equipamiento deportivo</p>
+              <p className="text-sm text-gray-600">{t('home.subtitle')}</p>
             </div>
             
             <LoginForm onLoginSuccess={handleLoginSuccess} />

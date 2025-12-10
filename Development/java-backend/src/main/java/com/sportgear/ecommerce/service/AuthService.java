@@ -63,7 +63,8 @@ public class AuthService {
                 "email", user.getEmail(),
                 "firstName", user.getFirstName() != null ? user.getFirstName() : "",
                 "lastName", user.getLastName() != null ? user.getLastName() : "",
-                "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : ""
+                "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
+                "role", user.getRole().name()
             )
         );
     }

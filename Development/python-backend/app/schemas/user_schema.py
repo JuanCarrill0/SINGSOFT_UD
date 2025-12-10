@@ -3,18 +3,21 @@ from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
-    name: str
-    email: EmailStr
+    # Optional local profile data
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    # External identity (UUID string from Java Auth)
+    external_user_id: str
 
 
 class UserCreate(UserBase):
-    password: str
+    # No password stored here; authentication handled by Java backend
+    pass
 
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     email: Optional[EmailStr] = None
-    password: Optional[str] = None
 
 
 class UserResponse(UserBase):

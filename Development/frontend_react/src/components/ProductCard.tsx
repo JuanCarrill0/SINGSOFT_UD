@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useTranslation } from 'react-i18next';
 
 interface ProductCardProps {
   id: number;
@@ -27,6 +28,7 @@ export function ProductCard({
   inStock,
   onAddToCart,
 }: ProductCardProps) {
+  const { t } = useTranslation();
   const discount = oldPrice ? Math.round(((oldPrice - price) / oldPrice) * 100) : 0;
 
   return (
@@ -45,7 +47,7 @@ export function ProductCard({
             <Badge className="bg-red-600">-{discount}%</Badge>
           )}
           {!inStock && (
-            <Badge variant="secondary">Agotado</Badge>
+            <Badge variant="secondary">{t('products.outOfStock')}</Badge>
           )}
         </div>
 
@@ -66,7 +68,7 @@ export function ProductCard({
             onClick={() => onAddToCart({ id, name, price, image })}
           >
             <ShoppingCart className="h-4 w-4 mr-2" />
-            Agregar al Carrito
+            {t('products.addToCart')}
           </Button>
         </div>
       </div>

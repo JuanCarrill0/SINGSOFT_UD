@@ -7,14 +7,14 @@
 -- Purpose: E-commerce platform for sports equipment
 
 -- =============================================
--- Table: users
--- Purpose: Store user accounts (customers and admins)
+-- Table: customer_profiles
+-- Purpose: Store local customer profile data referencing external identity (UUID)
 -- =============================================
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS customer_profiles (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    external_user_id VARCHAR(36) UNIQUE NOT NULL,
+    name VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -37,9 +37,21 @@ CREATE TABLE IF NOT EXISTS products (
 -- =============================================
 CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id VARCHAR(36) NOT NULL, -- External UUID from Auth service
     total DECIMAL(10,2) NOT NULL,
     status VARCHAR(50) DEFAULT 'pending'
+);
+
+-- =============================================
+-- Table: order_items
+-- Purpose: Order line items linking products to orders
+-- =============================================
+CREATE TABLE IF NOT EXISTS order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    unit_price DECIMAL(10,2) NOT NULL
 );
 
 -- =============================================
@@ -57,10 +69,10 @@ CREATE TABLE IF NOT EXISTS payments (
 -- =============================================
 -- Sample Data for Testing
 -- =============================================
-INSERT INTO users (name, email, password) VALUES 
-('Admin User', 'admin@sportgear.com', 'hashed_password_123'),
-('Test Customer', 'customer@example.com', 'hashed_password_456')
-ON CONFLICT (email) DO NOTHING;
+INSERT INTO customer_profiles (external_user_id, name, email) VALUES 
+('11111111-1111-1111-1111-111111111111', 'Admin User', 'admin@sportgear.com'),
+('22222222-2222-2222-2222-222222222222', 'Test Customer', 'customer@example.com')
+ON CONFLICT (external_user_id) DO NOTHING;
 
 INSERT INTO products (name, description, price, category) VALUES 
 ('Professional Football', 'Size 5 official match football', 49.99, 'Football'),
@@ -68,8 +80,8 @@ INSERT INTO products (name, description, price, category) VALUES
 ON CONFLICT DO NOTHING;
 
 INSERT INTO orders (user_id, total, status) VALUES 
-(1, 49.99, 'completed'),
-(2, 39.99, 'processing')
+('11111111-1111-1111-1111-111111111111', 49.99, 'completed'),
+('22222222-2222-2222-2222-222222222222', 39.99, 'processing')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO payments (order_id, amount, method, status) VALUES 

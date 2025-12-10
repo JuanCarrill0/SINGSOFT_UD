@@ -5,6 +5,7 @@ import { ProductFilters } from "../components/ProductFilters";
 import { Button } from "../components/ui/button";
 import { LayoutGrid, List, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ interface DashboardPageProps {
 }
 
 export default function DashboardPage({ viewMode, setViewMode, onAddToCart, searchQuery }: DashboardPageProps) {
+  const { t } = useTranslation();
   const [filters, setFilters] = useState<ProductFiltersType>({});
   const { products, loading, error, refreshProducts, searchProducts } = useProducts(filters);
 
@@ -70,23 +72,23 @@ export default function DashboardPage({ viewMode, setViewMode, onAddToCart, sear
           {/* Section header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
-              <h2 className="text-3xl mb-2">Productos Destacados</h2>
+              <h2 className="text-3xl mb-2">{t('home.featuredProducts')}</h2>
               <p className="text-gray-600">
                 {filters.searchQuery 
-                  ? `Resultados para: "${filters.searchQuery}"` 
-                  : "Descubre nuestra selección de productos premium"}
+                  ? `${t('common.search')}: "${filters.searchQuery}"` 
+                  : (t('home.subtitle') || "Descubre nuestra selección de productos premium")}
               </p>
             </div>
             <div className="flex items-center gap-2">
               <ProductFilters onApplyFilters={handleApplyFilters} />
               <Select defaultValue="popular">
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Ordenar por" />
+                  <SelectValue placeholder={t('products.sort')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="popular">Más Popular</SelectItem>
-                  <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
-                  <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
+                  <SelectItem value="popular">{t('products.sort') || "Más Popular"}</SelectItem>
+                  <SelectItem value="price-asc">{t('products.price') || "Precio"}: Menor a Mayor</SelectItem>
+                  <SelectItem value="price-desc">{t('products.price') || "Precio"}: Mayor a Menor</SelectItem>
                   <SelectItem value="rating">Mejor Valorados</SelectItem>
                   <SelectItem value="new">Más Recientes</SelectItem>
                 </SelectContent>
@@ -120,7 +122,7 @@ export default function DashboardPage({ viewMode, setViewMode, onAddToCart, sear
                   className="ml-2"
                   onClick={refreshProducts}
                 >
-                  Reintentar
+                  {t('common.refresh')}
                 </Button>
               </AlertDescription>
             </Alert>
@@ -131,7 +133,7 @@ export default function DashboardPage({ viewMode, setViewMode, onAddToCart, sear
             <div className="flex justify-center items-center py-20">
               <div className="text-center">
                 <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Cargando productos...</p>
+                <p className="text-gray-600">{t('products.loading')}</p>
               </div>
             </div>
           )}
@@ -141,7 +143,7 @@ export default function DashboardPage({ viewMode, setViewMode, onAddToCart, sear
             <>
               {products.length === 0 ? (
                 <div className="text-center py-20">
-                  <p className="text-gray-600 text-lg">No hay productos disponibles</p>
+                  <p className="text-gray-600 text-lg">{t('products.noResults')}</p>
                 </div>
               ) : (
                 <div className={`grid gap-6 ${
@@ -163,7 +165,7 @@ export default function DashboardPage({ viewMode, setViewMode, onAddToCart, sear
               {products.length > 0 && (
                 <div className="text-center mt-12">
                   <Button variant="outline" size="lg" onClick={refreshProducts}>
-                    Actualizar Productos
+                    {t('common.refresh')} {t('products.title')}
                   </Button>
                 </div>
               )}

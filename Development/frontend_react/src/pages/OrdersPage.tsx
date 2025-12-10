@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useOrders, Order } from '../hooks/useOrders';
 import { useShipments, Shipment } from '../hooks/useShipments';
 import { Button } from '../components/ui/button';
@@ -8,14 +9,17 @@ import { Badge } from '../components/ui/badge';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Loader2, Package, Calendar, MapPin, DollarSign, ArrowLeft, Truck } from 'lucide-react';
 import ShipmentTracker from '../components/ShipmentTracker';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function OrdersPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { orders, loading, error, fetchOrders } = useOrders();
   const { getShipmentByOrder } = useShipments();
   const [userId, setUserId] = useState<string | null>(null);
   const [shipmentData, setShipmentData] = useState<Record<number, Shipment | null>>({});
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
+  const [localOrders, setLocalOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     // Obtener userId del localStorage
@@ -38,29 +42,36 @@ export default function OrdersPage() {
     fetchOrders(id);
   }, []);
 
-  // Load shipment data when orders change
+  // Sync local orders with fetched orders
   useEffect(() => {
-    const loadShipments = async () => {
-      const shipments: Record<number, Shipment | null> = {};
-      for (const order of orders) {
-        const shipment = await getShipmentByOrder(order.id);
-        shipments[order.id] = shipment;
-      }
-      setShipmentData(shipments);
-    };
-
-    if (orders.length > 0) {
-      loadShipments();
-    }
+    setLocalOrders(orders);
   }, [orders]);
 
-  const toggleOrderExpansion = (orderId: number) => {
+  // Auto-refresh orders every 15 seconds to reflect shipment status changes
+  useEffect(() => {
+    if (!userId) return;
+
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing orders...');
+      fetchOrders(userId);
+    }, 15000); // 15 seconds
+
+    return () => clearInterval(interval);
+  }, [userId]);
+
+  const toggleOrderExpansion = async (orderId: number) => {
     setExpandedOrders(prev => {
       const newSet = new Set(prev);
       if (newSet.has(orderId)) {
         newSet.delete(orderId);
       } else {
         newSet.add(orderId);
+        // Load shipment data only when expanding
+        if (!shipmentData[orderId]) {
+          getShipmentByOrder(orderId).then(shipment => {
+            setShipmentData(prev => ({ ...prev, [orderId]: shipment }));
+          });
+        }
       }
       return newSet;
     });
@@ -154,7 +165,7 @@ export default function OrdersPage() {
         )}
 
         {/* Empty state */}
-        {!loading && !error && orders.length === 0 && (
+        {!loading && !error && localOrders.length === 0 && (
           <Card className="p-12 text-center">
             <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">No tienes órdenes</h2>
@@ -168,9 +179,9 @@ export default function OrdersPage() {
         )}
 
         {/* Orders list */}
-        {!loading && !error && orders.length > 0 && (
+        {!loading && !error && localOrders.length > 0 && (
           <div className="space-y-4">
-            {orders.map((order: Order) => (
+            {localOrders.map((order: Order) => (
               <Card key={order.id} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                   <div className="flex items-center gap-3">
@@ -232,10 +243,52 @@ export default function OrdersPage() {
                     <Button 
                       variant="destructive" 
                       size="sm"
-                      onClick={() => {
-                        if (confirm('¿Estás seguro de cancelar esta orden?')) {
-                          // Aquí se podría implementar la cancelación
-                          console.log('Cancelar orden', order.id);
+                      onClick={async () => {
+                        if (!confirm('¿Estás seguro de cancelar esta orden?')) return;
+                        
+                        // Capture current state before optimistic update
+                        const previousOrders = [...localOrders];
+                        
+                        // Optimistic UI update for immediate feedback
+                        setLocalOrders(prev => prev.map(o => 
+                          o.id === order.id ? { ...o, status: 'cancelled' } : o
+                        ));
+                        
+                        try {
+                          console.log('🚀 Attempting to cancel order:', order.id);
+                          console.log('📍 Cancel endpoint:', API_ENDPOINTS.ORDERS.CANCEL(order.id));
+                          
+                          const res = await fetch(API_ENDPOINTS.ORDERS.CANCEL(order.id), {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json'
+                            }
+                          });
+                          
+                          console.log('📡 Response status:', res.status);
+                          
+                          if (!res.ok) {
+                            const errText = await res.text();
+                            console.error('❌ Error al cancelar orden:', errText);
+                            // Revert optimistic update on error
+                            setLocalOrders(previousOrders);
+                            alert('No se pudo cancelar la orden: ' + errText);
+                            return;
+                          }
+                          
+                          const cancelledOrder = await res.json();
+                          console.log('✅ Order cancelled successfully:', cancelledOrder);
+                          
+                          // Refetch to ensure sync with server
+                          if (userId) {
+                            console.log('🔄 Refetching orders...');
+                            await fetchOrders(userId);
+                          }
+                        } catch (e) {
+                          console.error('❌ Exception while cancelling order:', e);
+                          // Revert optimistic update on error
+                          setLocalOrders(previousOrders);
+                          alert('No se pudo cancelar la orden: Error de conexión');
                         }
                       }}
                     >
@@ -256,7 +309,7 @@ export default function OrdersPage() {
         )}
 
         {/* Refresh button */}
-        {!loading && orders.length > 0 && (
+        {!loading && localOrders.length > 0 && (
           <div className="text-center mt-8">
             <Button 
               variant="outline"

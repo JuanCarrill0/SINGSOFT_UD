@@ -3,11 +3,17 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Header } from "./components/Header";
 import { Cart } from "./components/Cart";
 import { Footer } from "./components/Footer";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
-import ShipmentsManagementPage from './pages/ShipmentsManagementPage';
+import ShipmentManagementPage from './pages/ShipmentManagementPage';
+import OrderManagementPage from './pages/OrderManagementPage';
+import ProfilePage from "./pages/ProfilePage";
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import ProductManagementPage from './pages/ProductManagementPage';
+import UserManagementPage from "./pages/UserManagementPage";
 
 interface CartItem {
   id: number;
@@ -148,11 +154,59 @@ export default function App() {
           />
           <Route
             path="/orders"
-            element={isLoggedIn ? <OrdersPage /> : <Navigate to="/login" replace />}
+            element={
+              <ProtectedRoute requireAuth={true}>
+                <OrdersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <ProtectedRoute allowedRoles={['LOGISTICS_OPERATOR', 'SYSTEM_ADMIN', 'STORE_ADMIN']}>
+                <OrderManagementPage />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/shipments"
-            element={isLoggedIn ? <ShipmentsManagementPage /> : <Navigate to="/login" replace />}
+            element={
+              <ProtectedRoute allowedRoles={['LOGISTICS_OPERATOR', 'SYSTEM_ADMIN']}>
+                <ShipmentManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute requireAuth={true}>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['SYSTEM_ADMIN', 'STORE_ADMIN']}>
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <ProtectedRoute allowedRoles={['SYSTEM_ADMIN', 'STORE_ADMIN']}>
+                <ProductManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={['SYSTEM_ADMIN']}>
+                <UserManagementPage />
+              </ProtectedRoute>
+            }
           />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

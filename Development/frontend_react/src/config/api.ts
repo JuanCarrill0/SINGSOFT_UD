@@ -8,9 +8,11 @@ export const AUTH_API_BASE_URL = isProduction
   ? window.location.origin 
   : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080');
 
+// In dev, use the host-mapped port (8001) for direct container access
+// In production (Docker), use nginx proxy at window.location.origin
 export const BUSINESS_API_BASE_URL = isProduction 
   ? window.location.origin 
-  : (import.meta.env.VITE_BUSINESS_API_URL || 'http://localhost:8000');
+  : (import.meta.env.VITE_BUSINESS_API_URL || 'http://localhost:8001');
 
 // Export API_BASE_URL as alias for backward compatibility
 export const API_BASE_URL = BUSINESS_API_BASE_URL;
@@ -30,6 +32,7 @@ export const API_ENDPOINTS = {
     GET: (id: number) => `${BUSINESS_API_BASE_URL}/api/v1/orders/${id}`,
     UPDATE: (id: number) => `${BUSINESS_API_BASE_URL}/api/v1/orders/${id}`,
     DELETE: (id: number) => `${BUSINESS_API_BASE_URL}/api/v1/orders/${id}`,
+    CANCEL: (id: number) => `${BUSINESS_API_BASE_URL}/api/v1/orders/${id}/cancel`,
   },
   PAYMENTS: {
     LIST: `${BUSINESS_API_BASE_URL}/api/v1/payments`,
@@ -46,5 +49,14 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${BUSINESS_API_BASE_URL}/api/v1/shipments/${id}`,
     UPDATE_STATUS: (id: number) => `${BUSINESS_API_BASE_URL}/api/v1/shipments/${id}/status`,
     DELETE: (id: number) => `${BUSINESS_API_BASE_URL}/api/v1/shipments/${id}`,
+  },
+  USERS: {
+    BASE: `${AUTH_API_BASE_URL}/api/users`,
+    GET: (id: string) => `${AUTH_API_BASE_URL}/api/users/${id}`,
+    UPDATE_ROLE: (id: string) => `${AUTH_API_BASE_URL}/api/users/${id}/role`,
+    UPDATE_STATUS: (id: string) => `${AUTH_API_BASE_URL}/api/users/${id}/status`,
+    UPDATE_PROFILE: (id: string) => `${AUTH_API_BASE_URL}/api/users/${id}/profile`,
+    UPDATE_PASSWORD: (id: string) => `${AUTH_API_BASE_URL}/api/users/${id}/password`,
+    STATS: `${AUTH_API_BASE_URL}/api/users/stats`,
   },
 };

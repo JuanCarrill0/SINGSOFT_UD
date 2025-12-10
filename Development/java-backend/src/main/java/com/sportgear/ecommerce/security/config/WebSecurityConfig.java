@@ -49,6 +49,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // ⬅️ all the autentication and validation of users
                         .requestMatchers("/api/public/**").permitAll() // ⬅️ Public routes
+                        .requestMatchers("/api/users/**").permitAll() // ⬅️ User management routes (should be secured in production)
                         .anyRequest().authenticated() // ⬅️ the rest require auth
                 );
 

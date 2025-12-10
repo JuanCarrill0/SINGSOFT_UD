@@ -24,7 +24,7 @@ interface CartProps {
 export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }: CartProps) {
   const navigate = useNavigate();
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 50000 ? 0 : 5000;
+  const shipping = subtotal > 50000 ? 0 : 100;
   const total = subtotal + shipping;
 
   const handleCheckout = () => {

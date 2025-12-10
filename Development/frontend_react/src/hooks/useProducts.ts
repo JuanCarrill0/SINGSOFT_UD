@@ -12,6 +12,7 @@ export interface Product {
   gender?: string;
   in_stock: boolean;
   stock_quantity: number;
+  image_url?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -88,8 +89,8 @@ export function useProducts(filters?: ProductFilters) {
       // Transformar los productos del backend al formato del frontend
       const transformedProducts: ProductDisplay[] = data.map((product) => ({
         ...product,
-        // Asignar imagen según categoría
-        image: categoryImages[product.category] || categoryImages['default'],
+        // Usar image_url del backend si está disponible, sino usar imagen por categoría
+        image: product.image_url || categoryImages[product.category] || categoryImages['default'],
         // Convertir in_stock a inStock
         inStock: product.in_stock,
         // Rating aleatorio entre 4-5 estrellas (puedes agregarlo al backend después)
@@ -116,11 +117,96 @@ export function useProducts(filters?: ProductFilters) {
     fetchProducts(searchFilters);
   };
 
+  const createProduct = async (productData: Partial<Product>) => {
+    try {
+      const response = await fetch(API_ENDPOINTS.PRODUCTS.LIST, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: productData.name,
+          description: productData.description,
+          price: productData.price,
+          category: productData.category,
+          brand: productData.brand || '',
+          sport: productData.sport || productData.category,
+          gender: productData.gender || 'Unisex',
+          stock_quantity: productData.stock_quantity || 0,
+          in_stock: (productData.stock_quantity || 0) > 0,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al crear el producto');
+      }
+
+      const newProduct = await response.json();
+      return newProduct;
+    } catch (err) {
+      console.error('Error creating product:', err);
+      throw err;
+    }
+  };
+
+  const updateProduct = async (productId: number, productData: Partial<Product>) => {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.PRODUCTS.LIST}/${productId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: productData.name,
+          description: productData.description,
+          price: productData.price,
+          category: productData.category,
+          brand: productData.brand,
+          sport: productData.sport || productData.category,
+          gender: productData.gender,
+          stock_quantity: productData.stock_quantity,
+          in_stock: (productData.stock_quantity || 0) > 0,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el producto');
+      }
+
+      const updatedProduct = await response.json();
+      return updatedProduct;
+    } catch (err) {
+      console.error('Error updating product:', err);
+      throw err;
+    }
+  };
+
+  const deleteProduct = async (productId: number) => {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.PRODUCTS.LIST}/${productId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar el producto');
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      throw err;
+    }
+  };
+
   return {
     products,
     loading,
     error,
     refreshProducts,
     searchProducts,
+    fetchProducts,
+    createProduct,
+    updateProduct,
+    deleteProduct,
   };
 }

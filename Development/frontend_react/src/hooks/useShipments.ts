@@ -8,6 +8,7 @@ export interface Shipment {
   carrier?: string;
   vehicle_info?: string;
   status: string;
+  estimated_delivery?: string;
   shipped_at?: string;
   delivered_at?: string;
   created_at: string;
@@ -19,6 +20,8 @@ export interface ShipmentCreate {
   tracking_number?: string;
   carrier?: string;
   vehicle_info?: string;
+  estimated_delivery?: string;
+  status?: 'pending' | 'dispatched' | 'shipped' | 'in_transit' | 'delivered';
 }
 
 export interface ShipmentUpdate {
@@ -29,7 +32,7 @@ export interface ShipmentUpdate {
 }
 
 export interface ShipmentStatusUpdate {
-  status: 'pending' | 'shipped' | 'in_transit' | 'delivered' | 'cancelled';
+  status: 'pending' | 'dispatched' | 'shipped' | 'in_transit' | 'delivered' | 'cancelled';
   vehicle_info?: string;
 }
 
@@ -43,8 +46,8 @@ export const useShipments = () => {
     setError(null);
     try {
       const url = status 
-        ? `${API_BASE_URL}/shipments?status=${status}`
-        : `${API_BASE_URL}/shipments`;
+        ? `${API_BASE_URL}/api/v1/shipments?status=${status}`
+        : `${API_BASE_URL}/api/v1/shipments`;
       
       const response = await fetch(url);
       if (!response.ok) throw new Error('Error al cargar los envíos');
@@ -60,21 +63,22 @@ export const useShipments = () => {
 
   const getShipmentByOrder = async (orderId: number): Promise<Shipment | null> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipments/order/${orderId}`);
+      const response = await fetch(`${API_BASE_URL}/api/v1/shipments/order/${orderId}`);
       if (!response.ok) {
         if (response.status === 404) return null;
         throw new Error('Error al cargar el envío');
       }
-      return await response.json();
+      const data = await response.json();
+      return data;
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching shipment:', err);
       return null;
     }
   };
 
   const getShipmentByTracking = async (trackingNumber: string): Promise<Shipment | null> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipments/tracking/${trackingNumber}`);
+      const response = await fetch(`${API_BASE_URL}/api/v1/shipments/tracking/${trackingNumber}`);
       if (!response.ok) {
         if (response.status === 404) return null;
         throw new Error('Error al buscar el envío');
@@ -88,7 +92,7 @@ export const useShipments = () => {
 
   const createShipment = async (shipmentData: ShipmentCreate): Promise<Shipment | null> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipments`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/shipments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +117,7 @@ export const useShipments = () => {
     updateData: ShipmentUpdate
   ): Promise<Shipment | null> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipments/${shipmentId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/shipments/${shipmentId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +142,7 @@ export const useShipments = () => {
     statusUpdate: ShipmentStatusUpdate
   ): Promise<Shipment | null> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipments/${shipmentId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/shipments/${shipmentId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

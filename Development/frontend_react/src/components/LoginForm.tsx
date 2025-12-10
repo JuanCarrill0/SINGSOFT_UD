@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -9,6 +10,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
+  const { t } = useTranslation();
   const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -87,12 +89,12 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     <div className="w-full px-6">
       <div className="mb-4">
         <h1 className="text-3xl mb-1">
-          {isRegister ? "Crear Cuenta" : "Iniciar Sesión"}
+          {isRegister ? t('auth.register') : t('auth.login')}
         </h1>
         <p className="text-gray-600">
           {isRegister 
-            ? "Completa tus datos para registrarte" 
-            : "Ingresa tus credenciales para acceder"}
+            ? (t('auth.noAccount') || "Completa tus datos para registrarte")
+            : (t('auth.hasAccount') || "Ingresa tus credenciales para acceder")}
         </p>
       </div>
 
@@ -100,7 +102,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         {isRegister && (
           <>
             <div className="space-y-1.5">
-              <Label htmlFor="firstName">Nombre</Label>
+              <Label htmlFor="firstName">{t('profile.firstName')}</Label>
               <Input
                 id="firstName"
                 name="firstName"
@@ -111,7 +113,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="lastName">Apellido</Label>
+              <Label htmlFor="lastName">{t('profile.lastName')}</Label>
               <Input
                 id="lastName"
                 name="lastName"
@@ -122,7 +124,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="phoneNumber">Teléfono</Label>
+              <Label htmlFor="phoneNumber">{t('profile.phone')}</Label>
               <Input
                 id="phoneNumber"
                 name="phoneNumber"
@@ -132,7 +134,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="dateOfBirth">Fecha de Nacimiento</Label>
+              <Label htmlFor="dateOfBirth">{t('profile.dateOfBirth')}</Label>
               <Input
                 id="dateOfBirth"
                 name="dateOfBirth"
@@ -145,7 +147,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           </>
         )}
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t('auth.email')}</Label>
           <Input
             id="email"
             name="email"
@@ -157,7 +159,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password">Contraseña</Label>
+          <Label htmlFor="password">{t('auth.password')}</Label>
           <Input
             id="password"
             name="password"
@@ -170,12 +172,12 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         </div>
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-            <strong className="font-semibold">Error: </strong>
+            <strong className="font-semibold">{t('common.error')}: </strong>
             <span>{error}</span>
           </div>
         )}
         <Button type="submit" className="w-full mt-4" disabled={loading}>
-          {loading ? "Cargando..." : isRegister ? "Registrarse" : "Iniciar Sesión"}
+          {loading ? t('common.loading') : isRegister ? t('auth.register') : t('auth.login')}
         </Button>
         <Button
           type="button"
@@ -186,7 +188,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             setError("");
           }}
         >
-          {isRegister ? "¿Ya tienes cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate"}
+          {isRegister ? t('auth.hasAccount') : t('auth.noAccount')}
         </Button>
       </form>
     </div>
