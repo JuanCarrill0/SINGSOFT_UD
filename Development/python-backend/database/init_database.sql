@@ -85,13 +85,13 @@ CREATE INDEX IF NOT EXISTS idx_shipments_status ON shipments(status);
 -- Insert Sample Data (Optional - for testing)
 -- =============================================
 
--- Sample Products
-INSERT INTO products (name, description, price, category, brand, sport, gender, stock_quantity) VALUES 
-('Professional Football', 'Official size 5 football for professional matches', 49.99, 'Equipamiento', 'Nike', 'Fútbol', 'Unisex', 50),
-('Basketball Pro', 'High-quality indoor/outdoor basketball', 39.99, 'Equipamiento', 'Wilson', 'Basketball', 'Unisex', 30),
-('Running Shoes', 'Lightweight running shoes with cushion technology', 89.99, 'Calzado', 'Adidas', 'Running', 'Unisex', 25),
-('Yoga Mat', 'Non-slip premium yoga mat', 29.99, 'Fitness', 'Nike', 'Yoga', 'Unisex', 40),
-('Tennis Racket', 'Professional tennis racket with carbon fiber', 129.99, 'Equipamiento', 'Wilson', 'Tennis', 'Unisex', 15)
+-- Sample Products (estos se eliminan y reemplazan con init_products.sql para la carga completa)
+INSERT INTO products (name, description, price, category, brand, sport, gender, stock_quantity, in_stock, image_url) VALUES 
+('Professional Football', 'Official size 5 football for professional matches', 49.99, 'Equipamiento', 'Nike', 'Fútbol', 'Unisex', 50, true, 'https://images.unsplash.com/photo-1614632537423-1e6c2e7e0aab?w=500'),
+('Basketball Pro', 'High-quality indoor/outdoor basketball', 39.99, 'Equipamiento', 'Wilson', 'Basketball', 'Unisex', 30, true, 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=500'),
+('Running Shoes', 'Lightweight running shoes with cushion technology', 89.99, 'Calzado', 'Adidas', 'Running', 'Unisex', 25, true, 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'),
+('Yoga Mat', 'Non-slip premium yoga mat', 29.99, 'Fitness', 'Nike', 'Yoga', 'Unisex', 40, true, 'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=500'),
+('Tennis Racket', 'Professional tennis racket with carbon fiber', 129.99, 'Equipamiento', 'Wilson', 'Tennis', 'Unisex', 15, true, 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=500')
 ON CONFLICT DO NOTHING;
 
 -- NOTE: Orders and Payments require valid user_id from MySQL
