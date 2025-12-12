@@ -6,14 +6,14 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install ALL dependencies (including devDependencies needed for build)
+RUN npm config set strict-ssl false && npm install
 
 # Copy source code
 COPY . .
 
 # Build the application (this will create the dist folder)
-RUN npm run build
+RUN npm config set strict-ssl false && npm run build
 
 # Stage 2: Production
 FROM nginx:alpine

@@ -10,13 +10,13 @@ COPY .mvn .mvn
 COPY pom.xml .
 
 # Download dependencies (cached layer)
-RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
 
 # Copy source code
 COPY src ./src
 
 # Build the application
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
 
 # Stage 2: Production
 FROM eclipse-temurin:17-jre-alpine
