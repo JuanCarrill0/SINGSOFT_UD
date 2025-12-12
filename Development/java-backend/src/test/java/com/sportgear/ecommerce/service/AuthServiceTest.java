@@ -1,6 +1,7 @@
 package com.sportgear.ecommerce.service;
 
 import com.sportgear.ecommerce.model.User;
+import com.sportgear.ecommerce.model.UserRole;
 import com.sportgear.ecommerce.repository.UserRepository;
 import com.sportgear.ecommerce.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +47,7 @@ class AuthServiceTest {
         testUser.setLastName("Doe");
         testUser.setPasswordHash("$2a$10$encodedPassword");
         testUser.setPhoneNumber("1234567890");
+        testUser.setRole(UserRole.CUSTOMER);  // ✅ Set role to avoid NullPointerException
     }
 
     @Test

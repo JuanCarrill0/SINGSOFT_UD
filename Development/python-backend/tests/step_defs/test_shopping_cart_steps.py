@@ -15,8 +15,8 @@ CART_API_BASE_URL = "http://localhost:8000/api/cart"
 PRODUCTS_API_BASE_URL = "http://localhost:8000/api/products"
 
 @pytest.fixture
-def context():
-    return {'cart': {'items': []}}
+def context(client):
+    return {'cart': {'items': []}, 'client': client}
 
 
 @given('I am authenticated')

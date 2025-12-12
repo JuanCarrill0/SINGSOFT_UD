@@ -10,8 +10,8 @@ scenarios('../features/search_test.feature')
 PRODUCTS_API_BASE_URL = "http://localhost:8000/api/products"
 
 @pytest.fixture
-def context():
-    return {}
+def context(client):
+    return {'client': client}
 
 @given('I am on the product catalog')
 def given_on_catalog(context):

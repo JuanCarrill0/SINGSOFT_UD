@@ -4,16 +4,15 @@ Step definitions for product catalog tests
 """
 import pytest
 from pytest_bdd import given, when, then, parsers, scenarios
-import requests
 from tests.step_defs.test_common_steps import *  # noqa: F401,F403
 
 scenarios('../features/product_catalog.feature')
 
-PRODUCTS_API_BASE_URL = "http://localhost:8000/api/products"
+PRODUCTS_API_BASE_URL = "http://testserver/api/v1/products"
 
 @pytest.fixture
-def context():
-    return {}
+def context(client):
+    return {'client': client}
 
 
 @given('I am on the product catalog page')
@@ -23,13 +22,15 @@ def on_catalog_page(context):
 
 @when('I load the page')
 def load_page(context):
-    try:
-        response = requests.get(PRODUCTS_API_BASE_URL, timeout=5)
-        context['response'] = response
-        context['status_code'] = response.status_code
-        if response.status_code == 200:
-            context['products'] = response.json()
-    except:
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+    response = client.get("/api/v1/products")
+    context['response'] = response
+    context['status_code'] = response.status_code
+    if response.status_code == 200:
+        context['products'] = response.json()
+    else:
         context['products'] = []
 
 
@@ -58,16 +59,14 @@ def products_in_categories(context):
 
 @when(parsers.parse('I select the category "{category}"'))
 def select_category(context, category):
-    try:
-        response = requests.get(
-            f"{PRODUCTS_API_BASE_URL}",
-            params={'category': category},
-            timeout=5
-        )
-        context['response'] = response
-        if response.status_code == 200:
-            context['filtered_products'] = response.json()
-    except:
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+    response = client.get("/api/v1/products", params={'category': category})
+    context['response'] = response
+    if response.status_code == 200:
+        context['filtered_products'] = response.json()
+    else:
         context['filtered_products'] = []
 
 @then(parsers.parse('only products from category "{category}" should be shown'))
@@ -94,12 +93,14 @@ def click_product(context):
 
 @when(parsers.parse('I navigate to the product details view {id:d}'))
 def navigate_to_details(context, id):
-    try:
-        response = requests.get(f"{PRODUCTS_API_BASE_URL}/{id}", timeout=5)
-        context['response'] = response
-        if response.status_code == 200:
-            context['product_details'] = response.json()
-    except:
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+    response = client.get(f"/api/v1/products/{id}")
+    context['response'] = response
+    if response.status_code == 200:
+        context['product_details'] = response.json()
+    else:
         context['product_details'] = {}
 
 
@@ -125,13 +126,15 @@ def show_stock(context):
 
 @when('I load the catalog page')
 def load_catalog(context):
-    try:
-        response = requests.get(PRODUCTS_API_BASE_URL, timeout=5)
-        context['response'] = response
-        context['status_code'] = response.status_code
-        if response.status_code == 200:
-            context['products'] = response.json()
-    except:
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+    response = client.get("/api/v1/products")
+    context['response'] = response
+    context['status_code'] = response.status_code
+    if response.status_code == 200:
+        context['products'] = response.json()
+    else:
         context['products'] = []
 
 
@@ -143,16 +146,14 @@ def ordered_by_relevance(context):
 
 @when(parsers.parse('I sort by "{criteria}"'))
 def sort_by(context, criteria):
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
     sort_param = criteria.lower().replace(' ', '_')
-    try:
-        response = requests.get(
-            f"{PRODUCTS_API_BASE_URL}",
-            params={'sort': sort_param},
-            timeout=5
-        )
-        if response.status_code == 200:
-            context['sorted_products'] = response.json()
-    except:
+    response = client.get("/api/v1/products", params={'sort': sort_param})
+    if response.status_code == 200:
+        context['sorted_products'] = response.json()
+    else:
         context['sorted_products'] = []
 
 
@@ -171,15 +172,13 @@ def products_with_different_prices(context):
 
 @when(parsers.parse('I filter products with max price ${price:d}'))
 def filter_max_price(context, price):
-    try:
-        response = requests.get(
-            f"{PRODUCTS_API_BASE_URL}",
-            params={'max_price': price},
-            timeout=5
-        )
-        if response.status_code == 200:
-            context['filtered_products'] = response.json()
-    except:
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+    response = client.get("/api/v1/products", params={'max_price': price})
+    if response.status_code == 200:
+        context['filtered_products'] = response.json()
+    else:
         context['filtered_products'] = []
 
 
@@ -192,15 +191,13 @@ def verify_max_price(context, price):
 
 @when(parsers.parse('I filter products with price between ${min:d} and ${max:d}'))
 def filter_price_range(context, min, max):
-    try:
-        response = requests.get(
-            f"{PRODUCTS_API_BASE_URL}",
-            params={'min_price': min, 'max_price': max},
-            timeout=5
-        )
-        if response.status_code == 200:
-            context['filtered_products'] = response.json()
-    except:
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+    response = client.get("/api/v1/products", params={'min_price': min, 'max_price': max})
+    if response.status_code == 200:
+        context['filtered_products'] = response.json()
+    else:
         context['filtered_products'] = []
 
 
@@ -212,15 +209,13 @@ def verify_price_range(context):
 
 @when('I combine category and price filters')
 def combine_filters(context):
-    try:
-        response = requests.get(
-            f"{PRODUCTS_API_BASE_URL}",
-            params={'category': 'Electronics', 'max_price': 500},
-            timeout=5
-        )
-        if response.status_code == 200:
-            context['filtered_products'] = response.json()
-    except:
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+    response = client.get("/api/v1/products", params={'category': 'Electronics', 'max_price': 500})
+    if response.status_code == 200:
+        context['filtered_products'] = response.json()
+    else:
         context['filtered_products'] = []
 
 
@@ -253,16 +248,14 @@ def exact_products(context, total):
 
 @when(parsers.parse('products are displayed with pagination of {per_page:d} per page'))
 def pagination(context, per_page):
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
     context['items_per_page'] = per_page
-    try:
-        response = requests.get(
-            f"{PRODUCTS_API_BASE_URL}",
-            params={'limit': per_page, 'page': 1},
-            timeout=5
-        )
-        if response.status_code == 200:
-            context['page_products'] = response.json()
-    except:
+    response = client.get("/api/v1/products", params={'limit': per_page, 'skip': 0})
+    if response.status_code == 200:
+        context['page_products'] = response.json()
+    else:
         context['page_products'] = []
 
 

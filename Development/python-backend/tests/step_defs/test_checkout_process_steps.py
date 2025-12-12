@@ -15,8 +15,8 @@ CHECKOUT_API_BASE_URL = "http://localhost:8000/api/checkout"
 ORDERS_API_BASE_URL = "http://localhost:8000/api/orders"
 
 @pytest.fixture
-def context():
-    return {'cart': {'items': [{'productId': 1, 'quantity': 2, 'price': 100}]}}
+def context(client):
+    return {'cart': {'items': [{'productId': 1, 'quantity': 2, 'price': 100}]}, 'client': client}
 
 
 @given('I have products in my cart')

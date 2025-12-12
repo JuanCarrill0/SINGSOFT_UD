@@ -15,8 +15,8 @@ scenarios('../features/order_viewing.feature')
 ORDERS_API_BASE_URL = "http://localhost:8000/api/orders"
 
 @pytest.fixture
-def context():
-    return {}
+def context(client):
+    return {'client': client}
 
 
 @given('I am authenticated')
