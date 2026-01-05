@@ -1,4 +1,4 @@
-# SportGear E-commerce
+<img width="1897" height="848" alt="image" src="https://github.com/user-attachments/assets/e7650907-7ec0-496f-87ea-0b70fd89b2e2" /># SportGear E-commerce
 
 A simple full-stack e-commerce application for sports equipment built with React frontend and Spring Boot backend.
 
@@ -17,6 +17,8 @@ A simple full-stack e-commerce application for sports equipment built with React
 - Shopping cart
 - Order management
 - Product search
+
+![Home Page](./Images/HomePage.jpg)
 
 👥 Team
 
